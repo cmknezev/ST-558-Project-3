@@ -2,7 +2,7 @@
 library(shiny)
 library(tidyverse)
 
-shinyServer(function(input, output){ 
+shinyServer(function(input, output, session){ 
   
   ### read in & clean data ###
   
@@ -24,11 +24,45 @@ shinyServer(function(input, output){
   
   ### data exploration ### 
   
+  # graph 
+  output$graph <- renderPlot({ 
+    # scatterplot
+    if(input$pltType == "scatterplot"){ 
+      if(input$summPlayer){ 
+        subDat <- pgaDat %>% filter(name == input$numSummPlayer) 
+        var1 <- input$scattVar 
+        subDat <- subDat[, c("points", var1)] 
+        subDat <- subDat %>% drop_na()
+        ggplot(data = subDat, aes_string(x = var1, y = "points")) + 
+          geom_point() + 
+          geom_smooth(method = lm, color = "blue") + 
+          labs(title = paste0("Scatterplot: ", var1, " vs. Points"), 
+               y = "Season Points Earned")
+      }
+      else { 
+        var1 <- input$scattVar
+        subDat <- pgaDat[, c("points", var1)] 
+        subDat <- subDat %>% drop_na() 
+        ggplot(data = subDat, aes_string(x = var1, y = "points")) + 
+          geom_point() + 
+          geom_smooth(method = lm, color = "blue") + 
+          labs(title = paste0("Scatterplot: ", var1, " vs. Points"), 
+               y = "Season Points Earned") 
+      }
+    }
+  })
+  
   # numeric summary
   output$numSumm <- renderPrint({ 
-    subDat <- pgaDat %>% filter(name == input$numSummPlayer)
-    var <- input$numSummVar 
-    summary(subDat[var])
+    if(input$summPlayer){ 
+      subDat <- pgaDat %>% filter(name == input$numSummPlayer) 
+      var <- input$numSummVar 
+      summary(subDat[var]) 
+    } 
+    else { 
+      var <- input$numSummVar 
+      summary(pgaDat[var])
+    }
   })
   
 })

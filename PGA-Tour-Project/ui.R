@@ -18,23 +18,43 @@ shinyUI(navbarPage("PGA Tour App",
   # Data Exploration UI
   tabPanel("Data Exploration Page", 
     titlePanel("Exploratory Data Analysis"), 
-    sidebarLayout(
-      textInput("numSummPlayer", "Player for Numeric Summaries", 
-                value = "Rory McIlroy"), 
-      selectInput("numSummVar", "Variable for Numeric Summaries", 
-                  c("Points" = "points", 
-                    "Fairway %" = "fairwayPct", 
-                    "Driver Distance" = "avgDistance", 
-                    "Greens in Regulation %" = "gir", 
-                    "Putts" = "avgPutts", 
-                    "Scrambling" = "avgScrambling", 
-                    "Score" = "avgScore", 
-                    "Shots Gained: Off the Tee" = "sgOTT", 
-                    "Shots Gained: Approach" = "sgAPR", 
-                    "Shots Gained: Around the Green" = "sgARG"))
-    ), 
-    mainPanel(
-      verbatimTextOutput("numSumm")
+    sidebarLayout( 
+      sidebarPanel(
+        checkboxInput("summPlayer", strong("Summarize for Specific Player?", 
+                                           style = "color:blue")),
+        conditionalPanel(condition = "input.summPlayer", 
+                         textInput("numSummPlayer", "Player for Plot/Summaries", 
+                                   value = "Rory McIlroy")),
+        br(),
+        selectInput("pltType", "Type of Graph", 
+                    c("Scatterplot" = "scatterplot")), 
+        conditionalPanel(condition = "input.pltType == 'scatterplot'", 
+          selectInput("scattVar", "Variable for Scatterplot (along w/ Points)", 
+                      c("Fairway %" = "fairwayPct", 
+                        "Driver Distance" = "avgDistance", 
+                        "Greens in Regulation %" = "gir", 
+                        "Putts" = "avgPutts", 
+                        "Scrambling" = "avgScrambling", 
+                        "Score" = "avgScore", 
+                        "Shots Gained: Off the Tee" = "sgOTT", 
+                        "Shots Gained: Approach" = "sgAPR", 
+                        "Shots Gained: Around the Green" = "sgARG"))),
+        selectInput("numSummVar", "Variable for Numeric Summaries", 
+                    c("Points" = "points", 
+                      "Fairway %" = "fairwayPct", 
+                      "Driver Distance" = "avgDistance", 
+                      "Greens in Regulation %" = "gir", 
+                      "Putts" = "avgPutts", 
+                      "Scrambling" = "avgScrambling", 
+                      "Score" = "avgScore", 
+                      "Shots Gained: Off the Tee" = "sgOTT", 
+                      "Shots Gained: Approach" = "sgAPR", 
+                      "Shots Gained: Around the Green" = "sgARG"))
+      ),
+      mainPanel(
+        plotOutput("graph"), 
+        verbatimTextOutput("numSumm")
+      )
     )
   )
 ))
