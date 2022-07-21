@@ -16,4 +16,4 @@ You can install these packages with the following code:
 
 ### Code to Run the App 
 
-shiny::runGitHub()
+shiny::runGitHub("ST-558-Project-3", "cmknezev", subdir = "PGA-Tour-Project")
