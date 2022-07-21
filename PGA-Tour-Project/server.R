@@ -78,6 +78,22 @@ shinyServer(function(input, output, session){
                x = "Year", y = paste0(var1))
       }
     }
+    # boxplot 
+    else if(input$pltType == "box"){ 
+      if(input$summPlayer){ 
+        subDat <- pgaDat %>% filter(name == input$numSummPlayer) 
+        var1 <- input$boxVar 
+        ggplot(data = subDat, aes_string(x = var1)) + 
+          geom_boxplot(color = "darkgreen", outlier.color = "red") + 
+          labs(title = paste0(input$numSummPlayer, "'s ", var1))
+      }
+      else { 
+        var1 <- input$boxVar 
+        ggplot(data = pgaDat, aes_string(x = var1)) + 
+          geom_boxplot(color = "darkgreen", outlier.color = "red") + 
+          labs(title = paste0("Boxplot of ", var1))
+      }
+    }
   })
   
   # numeric summary
