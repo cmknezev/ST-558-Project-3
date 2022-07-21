@@ -1,25 +1,20 @@
-
+# libraries
 library(shiny)
 
-# Define UI for application that draws a histogram
-shinyUI(fluidPage(
-
-    # Application title
-    titlePanel("Old Faithful Geyser Data"),
-
-    # Sidebar with a slider input for number of bins
+shinyUI(navbarPage("PGA Tour App", 
+       
+  # About Page UI                             
+  tabPanel("About Page", 
+    titlePanel("About this Project"), 
     sidebarLayout(
-        sidebarPanel(
-            sliderInput("bins",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 30)
-        ),
-
-        # Show a plot of the generated distribution
-        mainPanel(
-            plotOutput("distPlot")
-        )
-    )
+      sidebarPanel(
+        h4("Description")
+      ),
+      mainPanel("picture")
+    ), 
+  )
+  
+  # Data Exploration UI
 ))
+
+#shiny::runGitHub("ST-558-Project-3", "cmknezev", subdir = "PGA-Tour-Project")
