@@ -50,6 +50,34 @@ shinyServer(function(input, output, session){
                y = "Season Points Earned") 
       }
     }
+    # line chart 
+    else if(input$pltType == "line"){ 
+      if(input$summPlayer){ 
+        subDat <- pgaDat %>% filter(name == input$numSummPlayer) 
+        var1 <- input$lineVar 
+        subDat <- subDat[, c("year", var1)] 
+        subDat <- subDat %>% group_by(year) %>% drop_na() 
+        colnames(subDat)[2] <- "lineVar" 
+        subDat <- subDat %>% summarise(avg = mean(lineVar)) 
+        ggplot(data = subDat, aes(x = year, y = avg)) + 
+          geom_line(linetype = "dashed", color = "blue") + 
+          geom_point(color = "blue") + 
+          labs(title = paste0(input$numSummPlayer, "'s ", var1, " by Year"), 
+               x = "Year", y = paste0(var1))
+      }
+      else { 
+        var1 <- input$lineVar
+        subDat <- pgaDat[, c("year", var1)]
+        subDat <- subDat %>% group_by(year) %>% drop_na() 
+        colnames(subDat)[2] <- "lineVar" 
+        subDat <- subDat %>% summarise(avg = mean(lineVar))
+        ggplot(data = subDat, aes(x = year, y = avg)) + 
+          geom_line(linetype = "dashed", color = "darkgreen") + 
+          geom_point(color = "darkgreen") + 
+          labs(title = paste0("Average ", var1, " by Year"), 
+               x = "Year", y = paste0(var1))
+      }
+    }
   })
   
   # numeric summary
