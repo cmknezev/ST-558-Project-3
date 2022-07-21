@@ -1,5 +1,6 @@
 # libraries
 library(shiny)
+library(tidyverse)
 
 shinyUI(navbarPage("PGA Tour App", 
        
