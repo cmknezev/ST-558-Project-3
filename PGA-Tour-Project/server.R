@@ -1,6 +1,7 @@
 # libraries
 library(shiny)
 library(tidyverse)
+library(caret)
 
 shinyServer(function(input, output, session){ 
   
@@ -107,6 +108,24 @@ shinyServer(function(input, output, session){
       var <- input$numSummVar 
       summary(pgaDat[var])
     }
+  })
+  
+  ### modeling ### 
+  
+  eventReactive(input$submit, { 
+    # set seed for reproducibility 
+    set.seed(35) 
+    # training/test split 
+    train <- sample(1:nrow(pgaDat), size = nrow(pgaDat)*input$trainProp) 
+    test <- setdiff(1:nrow(pgaDat), train) 
+    pgaTrain <- pgaDat[train,] 
+    pgaTest <- pgaDat[test,]
+    
+    # MLR # 
+    mlrDat <- pgaTrain[, c("points", input$mlrVars)] 
+    mlrDat <- mlrDat %>% drop_na() 
+    mlrModel <- train(points ~ ., data = mlrDat, method = "lm", 
+                      trControl = trainControl(method = "cv", number = 5))
   })
   
 })
