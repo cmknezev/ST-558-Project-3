@@ -2,6 +2,7 @@
 library(shiny)
 library(tidyverse)
 library(caret)
+library(Metrics)
 
 shinyServer(function(input, output, session){ 
   
@@ -115,17 +116,46 @@ shinyServer(function(input, output, session){
   eventReactive(input$submit, { 
     # set seed for reproducibility 
     set.seed(35) 
+    # remove na's from dataset to avoid errors in model fitting/prediction
+    modelData <- pgaDat %>% drop_na()
     # training/test split 
-    train <- sample(1:nrow(pgaDat), size = nrow(pgaDat)*input$trainProp) 
-    test <- setdiff(1:nrow(pgaDat), train) 
-    pgaTrain <- pgaDat[train,] 
-    pgaTest <- pgaDat[test,]
+    train <- sample(1:nrow(modelData), size = nrow(modelData)*input$trainProp) 
+    test <- setdiff(1:nrow(modelData), train) 
+    pgaTrain <- modelData[train,] 
+    pgaTest <- modelData[test,]
     
     # MLR # 
     mlrDat <- pgaTrain[, c("points", input$mlrVars)] 
-    mlrDat <- mlrDat %>% drop_na() 
     mlrModel <- train(points ~ ., data = mlrDat, method = "lm", 
                       trControl = trainControl(method = "cv", number = 5))
+    
+    # Regression Tree # 
+    treeDat <- pgaTrain[, c("points", input$treeVars)] 
+    treeModel <- train(points ~., data = treeDat, method = "rpart", 
+                       trControl = trainControl(method = "cv", number = 5), 
+                       tuneGrid = data.frame(cp = input$treeCP))
+    
+    # Random Forest # 
+    rfDat <- pgaTrain[, c("points", input$rfVars)] 
+    if(input$rfmtry > (ncol(rfDat) - 1)){ 
+      rfmtry2 <- ncol(rfDat) - 1 
+    } 
+    else { 
+      rfmtry2 <- input$rfmtry 
+    } 
+    rfModel <- train(points ~ ., data = rfDat, method = "rf", 
+                     trControl = trainControl(method = "cv", number = 5), 
+                     tuneGrid = data.frame(mtry = rfmtry2)) 
+    
+    # model summaries 
+    # training rmse for all models 
+    mlrRMSE <- rmse(mlrModel, pgaTrain) 
+    treeRMSE <- rmse(treeModel, pgaTrain) 
+    rfRMSE <- rmse(rfModel, pgaTrain) 
+    # creating output 
+    output$rmse <- renderDataTable({ 
+      data.frame(MLR = mlrRMSE, Tree = treeRMSE, RF = rfRMSE)
+    })
   })
   
 })
