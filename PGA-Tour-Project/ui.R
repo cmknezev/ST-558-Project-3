@@ -86,10 +86,7 @@ shinyUI(navbarPage("PGA Tour App",
   ), 
   
   # Modeling UI 
-  tabPanel("Modeling", 
-    tabPanel("Modeling Info" 
-    ), 
-    tabPanel("Model Fitting", 
+  tabPanel("Model Fitting", 
       titlePanel("Enter all Model Information -- Press 'Submit' to Create Models"), 
       sidebarLayout( 
         sidebarPanel(
@@ -152,12 +149,68 @@ shinyUI(navbarPage("PGA Tour App",
           h3("Training RMSE for Each Model"), 
           dataTableOutput("rmse"), 
           br(), 
+          h3("MLR Model Summary"), 
+          verbatimTextOutput("mlrSumm"), 
+          br(), 
+          h3("Tree Model Summary"),
+          verbatimTextOutput("treeSumm"), 
+          br(), 
+          h3("Variable Importance Plot - RF Model"), 
+          plotOutput("rfPlot")
         )
       )
-    ),
-    tabPanel("Prediction" 
+  ), 
+  
+  tabPanel("Prediction", 
+    titlePanel("Select Model & Input Variable Values to Predict Points"), 
+    sidebarLayout( 
+      sidebarPanel( 
+        radioButtons("predModel", "Model Used for Predictions", 
+                     c("MLR Model" = "mlr", 
+                       "Tree Model" = "tree", 
+                       "Random Forest Model" = "rf")),  
+        numericInput("rounds", "Rounds", value = 80, min = 0, step = 1), 
+        numericInput("fairwayPct", "Fairway %", 
+                     value = 0.6, min = 0, max = 1, step = 0.01), 
+        numericInput("avgDistance", "Driver Distance", 
+                     value = 290, min = 1, step = 1), 
+        numericInput("gir", "Greens in Regulation %", 
+                     value = 0.65, min = 0, max = 1, step = 0.01), 
+        numericInput("avgPutts", "Putts", value = 30, min = 0), 
+        numericInput("avgScrambling", "Scrambling", 
+                     value = 0.6, min = 0, max = 1, step = 0.01), 
+        numericInput("avgScore", "Score", value = 72, min = 1), 
+        numericInput("avgSgPutts", "Avg. Shots Gained: Putts", 
+                     value = 0, step = 0.01), 
+        numericInput("avgSgTotal", "Avg. Shots Gained: Total", 
+                     value = 0, step = 0.01), 
+        numericInput("sgOTT", "Shots Gained: Off the Tee", 
+                     value = 0, step = 0.01), 
+        numericInput("sgAPR", "Shots Gained: Approach", 
+                     value = 0, step = 0.01), 
+        numericInput("sgARG", "Shots Gained: Around the Green", 
+                     value = 0, step = 0.01),
+        actionButton("submitPreds", "Submit")
+      ), 
+      mainPanel( 
+        h3("Predicted Points:"), 
+        verbatimTextOutput("prediction")
+      )
+    )
+  ), 
+  
+  tabPanel("Data", 
+    titlePanel("Full Data Set"), 
+    sidebarLayout(
+      sidebarPanel(
+        
+      ), 
+      mainPanel(
+        
+      )
     )
   )
+  
 ))
 
 #shiny::runGitHub("ST-558-Project-3", "cmknezev", subdir = "PGA-Tour-Project")

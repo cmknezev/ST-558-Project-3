@@ -3,6 +3,7 @@ library(shiny)
 library(tidyverse)
 library(caret)
 library(Metrics)
+library(randomForest)
 
 shinyServer(function(input, output, session){ 
   
@@ -156,6 +157,59 @@ shinyServer(function(input, output, session){
     output$rmse <- renderDataTable({ 
       data.frame(MLR = mlrRMSE, Tree = treeRMSE, RF = rfRMSE)
     })
+    # mlr model summary 
+    output$mlrSumm <- renderPrint({ 
+      summary(mlrModel)
+    })
+    # tree model summary 
+    output$treeSumm <- renderPrint({ 
+      summary(treeModel)
+    })
+    # variable importance plot - rf model 
+    output$rfPlot <- renderPlot({ 
+      varImpPlot(rfModel)
+    }) 
+    # test rmse for all models 
+    mlrTestRMSE <- rmse(mlrModel, pgaTest) 
+    treeTestRMSE <- rmse(treeModel, pgaTest) 
+    rfTestRMSE <- rmse(rfModel, pgaTest) 
+    # creating output 
+    output$testrmse <- renderDataTable({ 
+      data.frame(MLR = mlrTestRMSE, Tree = treeTestRMSE, RF = rfTestRMSE) 
+    })
+  }) 
+  
+  ### predictions ### 
+  
+  eventReactive(input$submitPreds, { 
+    # create data frame with user-inputted values
+    predData <- data.frame(rounds = input$rounds, 
+                           fairwayPct = input$fairwayPct, 
+                           avgDistance = input$avgDistance, 
+                           gir = input$gir, 
+                           avgPutts = input$avgPutts, 
+                           avgScrambling = input$avgScrambling, 
+                           avgScore = input$avgScore, 
+                           avgSgPutts = input$avgSgPutts, 
+                           avgSgTotal = input$avgSgTotal, 
+                           sgOTT = input$sgOTT, 
+                           sgAPR = input$sgAPR, 
+                           sgARG = input$sgARG)
+    
+    # create predictions 
+    if(input$predModel == "mlr"){ 
+      preds <- predict(mlrModel, newdata = predData)
+    }
+    else if(input$predModel == "tree"){ 
+      preds <- predict(treeModel, newdata = predData)
+    }
+    else { 
+      preds <- predict(rfModel, newdata = predData)
+    }
+    
+    output$prediction <- renderPrint({ 
+      preds 
+    }) 
   })
   
 })
