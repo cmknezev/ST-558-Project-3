@@ -202,11 +202,33 @@ shinyUI(navbarPage("PGA Tour App",
   tabPanel("Data", 
     titlePanel("Full Data Set"), 
     sidebarLayout(
-      sidebarPanel(
-        
-      ), 
+      sidebarPanel( 
+        checkboxGroupInput("dataVars", "Variables to Display:", 
+                           choices = 
+                             c("Name" = "name",
+                               "Rounds" = "rounds", 
+                               "Fairway %" = "fairwayPct", 
+                               "Year" = "year",
+                               "Driver Distance" = "avgDistance", 
+                               "Greens in Regulation %" = "gir", 
+                               "Putts" = "avgPutts", 
+                               "Scrambling" = "avgScrambling", 
+                               "Score" = "avgScore", 
+                               "Points" = "points",
+                               "Avg. Shots Gained: Putts" = "avgSgPutts", 
+                               "Avg. Shots Gained: Total" = "avgSgTotal",
+                               "Shots Gained: Off the Tee" = "sgOTT", 
+                               "Shots Gained: Approach" = "sgAPR", 
+                               "Shots Gained: Around the Green" = "sgARG"), 
+                           selected = c("name", "rounds", "fairwayPct", 
+                                        "year", "avgDistance", "gir", 
+                                        "avgPutts", "avgScrambling", "avgScore", 
+                                        "points", "avgSgPutts", "avgSgTotal", 
+                                        "sgOTT", "sgAPR", "sgARG")), 
+        actionButton("save", "Save Data")
+      ),
       mainPanel(
-        
+        dataTableOutput("dt")
       )
     )
   )

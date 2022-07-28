@@ -4,6 +4,7 @@ library(tidyverse)
 library(caret)
 library(Metrics)
 library(randomForest)
+library(DT)
 
 shinyServer(function(input, output, session){ 
   
@@ -210,6 +211,24 @@ shinyServer(function(input, output, session){
     output$prediction <- renderPrint({ 
       preds 
     }) 
+  })
+  
+  ### data page ### 
+  
+  dataPage <- reactive({ 
+    pgaDat[, c(input$dataVars)] 
+  })
+
+  observe({
+    output$dt <- DT::renderDataTable({ 
+      dataPage()
+    })
+  })
+  
+  # save data as .csv 
+  observeEvent(input$save, { 
+    dataToSave <- dataPage()
+    write_csv(dataToSave, "SavedPgaTourData.csv")
   })
   
 })
