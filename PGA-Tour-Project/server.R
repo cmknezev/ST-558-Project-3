@@ -115,8 +115,8 @@ shinyServer(function(input, output, session){
   })
   
   ### modeling ### 
-  #eventReactive
-  observeEvent(input$submit, { 
+  # observeEvent
+  models <- eventReactive(input$submit, { 
     # set seed for reproducibility 
     set.seed(35) 
     # remove na's from dataset to avoid errors in model fitting/prediction
@@ -186,11 +186,16 @@ shinyServer(function(input, output, session){
       data.frame(MLR = mlrTestRMSE, Tree = treeTestRMSE, RF = rfTestRMSE) 
     })
     updateProgressBar(session = session, id = "progBar", value = 100, total = 100)
+    
+    # save models as list 
+    list(mlrModel, treeModel, rfModel)
   }) 
+  
+  observe(models())
   
   ### predictions ### 
   
-  eventReactive(input$submitPreds, { 
+  observeEvent(input$submitPreds, { 
     # create data frame with user-inputted values
     predData <- data.frame(rounds = input$rounds, 
                            fairwayPct = input$fairwayPct, 
@@ -207,13 +212,16 @@ shinyServer(function(input, output, session){
     
     # create predictions 
     if(input$predModel == "mlr"){ 
-      preds <- predict(mlrModel, newdata = predData)
+      model <- models()[[1]]
+      preds <- predict(model, newdata = predData)
     }
     else if(input$predModel == "tree"){ 
-      preds <- predict(treeModel, newdata = predData)
+      model <- models()[[2]]
+      preds <- predict(model, newdata = predData)
     }
     else { 
-      preds <- predict(rfModel, newdata = predData)
+      model <- models()[[3]]
+      preds <- predict(model, newdata = predData)
     }
     
     output$prediction <- renderPrint({ 
