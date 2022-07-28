@@ -2,6 +2,7 @@
 library(shiny)
 library(tidyverse)
 library(caret)
+library(shinyWidgets)
 
 shinyUI(navbarPage("PGA Tour App", 
        
@@ -143,7 +144,8 @@ shinyUI(navbarPage("PGA Tour App",
           numericInput("rfmtry", "Number of Variables to Use in Each Model (mtry)", 
                        value = 4, min = 1, max = 12, step = 1),
           br(), 
-          actionButton("submit", "Submit")
+          actionButton("submit", "Submit"), 
+          progressBar("progBar", value = 0, total = 100)
         ), 
         mainPanel( 
           h3("Training RMSE for Each Model"), 
@@ -155,8 +157,10 @@ shinyUI(navbarPage("PGA Tour App",
           h3("Tree Model Summary"),
           verbatimTextOutput("treeSumm"), 
           br(), 
-          h3("Variable Importance Plot - RF Model"), 
-          plotOutput("rfPlot")
+          h3("Variable Importance - RF Model"), 
+          verbatimTextOutput("rfImp"), 
+          h3("Test RMSE for Each Model"), 
+          dataTableOutput("testrmse")
         )
       )
   ), 

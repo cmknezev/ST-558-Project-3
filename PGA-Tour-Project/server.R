@@ -5,6 +5,7 @@ library(caret)
 library(Metrics)
 library(randomForest)
 library(DT)
+library(shinyWidgets)
 
 shinyServer(function(input, output, session){ 
   
@@ -114,8 +115,8 @@ shinyServer(function(input, output, session){
   })
   
   ### modeling ### 
-  
-  eventReactive(input$submit, { 
+  #eventReactive
+  observeEvent(input$submit, { 
     # set seed for reproducibility 
     set.seed(35) 
     # remove na's from dataset to avoid errors in model fitting/prediction
@@ -125,17 +126,20 @@ shinyServer(function(input, output, session){
     test <- setdiff(1:nrow(modelData), train) 
     pgaTrain <- modelData[train,] 
     pgaTest <- modelData[test,]
+    updateProgressBar(session = session, id = "progBar", value = 1, total = 100)
     
     # MLR # 
     mlrDat <- pgaTrain[, c("points", input$mlrVars)] 
     mlrModel <- train(points ~ ., data = mlrDat, method = "lm", 
                       trControl = trainControl(method = "cv", number = 5))
+    updateProgressBar(session = session, id = "progBar", value = 25, total = 100)
     
     # Regression Tree # 
     treeDat <- pgaTrain[, c("points", input$treeVars)] 
     treeModel <- train(points ~., data = treeDat, method = "rpart", 
                        trControl = trainControl(method = "cv", number = 5), 
                        tuneGrid = data.frame(cp = input$treeCP))
+    updateProgressBar(session = session, id = "progBar", value = 50, total = 100)
     
     # Random Forest # 
     rfDat <- pgaTrain[, c("points", input$rfVars)] 
@@ -148,12 +152,15 @@ shinyServer(function(input, output, session){
     rfModel <- train(points ~ ., data = rfDat, method = "rf", 
                      trControl = trainControl(method = "cv", number = 5), 
                      tuneGrid = data.frame(mtry = rfmtry2)) 
+    updateProgressBar(session = session, id = "progBar", value = 75, total = 100)
     
     # model summaries 
+    # create predictions for finding training rmse 
+    #predict(mlrModel, newdata = pgaTrain)
     # training rmse for all models 
-    mlrRMSE <- rmse(mlrModel, pgaTrain) 
-    treeRMSE <- rmse(treeModel, pgaTrain) 
-    rfRMSE <- rmse(rfModel, pgaTrain) 
+    mlrRMSE <- rmse(predict(mlrModel, newdata = pgaTrain), pgaTrain$points) 
+    treeRMSE <- rmse(predict(treeModel, newdata = pgaTrain), pgaTrain$points)
+    rfRMSE <- rmse(predict(rfModel, newdata = pgaTrain), pgaTrain$points)
     # creating output 
     output$rmse <- renderDataTable({ 
       data.frame(MLR = mlrRMSE, Tree = treeRMSE, RF = rfRMSE)
@@ -164,20 +171,21 @@ shinyServer(function(input, output, session){
     })
     # tree model summary 
     output$treeSumm <- renderPrint({ 
-      summary(treeModel)
+      treeModel
     })
-    # variable importance plot - rf model 
-    output$rfPlot <- renderPlot({ 
-      varImpPlot(rfModel)
+    # variable importance - rf model 
+    output$rfImp <- renderPrint({ 
+      varImp(rfModel, scale = FALSE)
     }) 
     # test rmse for all models 
-    mlrTestRMSE <- rmse(mlrModel, pgaTest) 
-    treeTestRMSE <- rmse(treeModel, pgaTest) 
-    rfTestRMSE <- rmse(rfModel, pgaTest) 
+    mlrTestRMSE <- rmse(predict(mlrModel, newdata = pgaTest), pgaTest$points)
+    treeTestRMSE <- rmse(predict(treeModel, newdata = pgaTest), pgaTest$points)
+    rfTestRMSE <- rmse(predict(rfModel, newdata = pgaTest), pgaTest$points)
     # creating output 
     output$testrmse <- renderDataTable({ 
       data.frame(MLR = mlrTestRMSE, Tree = treeTestRMSE, RF = rfTestRMSE) 
     })
+    updateProgressBar(session = session, id = "progBar", value = 100, total = 100)
   }) 
   
   ### predictions ### 
