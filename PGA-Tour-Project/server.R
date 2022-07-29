@@ -9,6 +9,11 @@ library(shinyWidgets)
 
 shinyServer(function(input, output, session){ 
   
+  # image 
+  output$img <- renderUI({ 
+    tags$img(src = "https://img.i-scmp.com/cdn-cgi/image/fit=contain,width=425,format=auto/sites/default/files/styles/768x768/public/d8/images/methode/2019/08/26/81aa0fba-c7a2-11e9-b4e3-f796e392de6b_image_hires_100223.jpg?itok=VZkmhPpB&v=1566784950")
+  })
+  
   ### read in & clean data ###
   
   # read in 
@@ -112,6 +117,13 @@ shinyServer(function(input, output, session){
       var <- input$numSummVar 
       summary(pgaDat[var])
     }
+  })
+  
+  # model info mathJax text # 
+  output$mathJax1 <- renderUI({ 
+    withMathJax(
+      helpText("$$Y_i=\\beta_0+\\beta_1x_1+\\beta_2x_2$$")
+    )
   })
   
   ### modeling ### 

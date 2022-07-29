@@ -11,9 +11,40 @@ shinyUI(navbarPage("PGA Tour App",
     titlePanel("About this Project"), 
     sidebarLayout(
       sidebarPanel(
-        h4("Description")
+        #uiOutput("img")
+        #img(src = "fedexcup.jpg")
       ),
-      mainPanel("picture")
+      mainPanel(
+        span("In this app, we will be exploring and analyzing data from the PGA 
+             Tour. Specifically, this dataset contains data with metrics for 
+             how well each player performed in each season from 2010 to 2018, as 
+             well as how many points they earned in the FedEx Cup. Players earn 
+             points in the FedEx Cup based on their performance in tournaments 
+             over the course of a season. The metrics that detail player 
+             performance include ways to measure performance in different 
+             aspects of a player's game (driving, putting, etc.), and a player's 
+             overall scoring. This app will allow users to explore a number of 
+             visualizations for this data, and users can create these 
+             visualizations for a specific player. Users can also train models 
+             in order to predict the number of FedEx Cup points a player will 
+             earn based on a number of selected variables."), 
+        br(), 
+        span("The data was sourced from ", a("Kaggle", 
+              href = "https://www.kaggle.com/datasets/jmpark746/pga-tour-data-2010-2018"), 
+             ", and this data was scraped from ", a("The PGA Tour Website.", 
+              href = "https://www.pgatour.com/stats.html")), 
+        br(), 
+        span("There are a number of different tabs in this app. First, the Data 
+             Exploration tab will show visualizations and summaries of the data. 
+             The Modeling Info tab will provide some information on the 
+             different types of models that this app will fit, and the Model 
+             Fitting tab will allow users to fit these models. The Prediction 
+             tab allows users to use the models created to predict the number 
+             of points based on the values the user inputs. Finally, the Data 
+             tab allows users to view the full dataset and to save the data."),
+        br(), 
+        uiOutput("img")
+      )
     ), 
   ),
   
@@ -85,6 +116,56 @@ shinyUI(navbarPage("PGA Tour App",
       )
     )
   ), 
+  
+  # Model Info UI 
+  tabPanel("Modeling Info", 
+    titlePanel("Modeling Info"), 
+    sidebarLayout( 
+      sidebarPanel( 
+        
+      ),
+      mainPanel(
+        h3("Multiple Linear Regression:"),
+        span("The goal of linear regression is to create an equation that models 
+             the relationship between a response variable and a set of 
+             explanatory variables. This is done by creating an equation with 
+             a common intercept and slopes corresponding to each explanatory 
+             variable. For example, a linear regression model with two 
+             explanatory variables may look like this:"), 
+        uiOutput("mathJax1"), 
+        span("You can also account for polynomial terms, interaction terms 
+             between two variables, and categorical variables with this method. 
+             The advantages of using linear regression are that it is generally 
+             easy to fit the model, and the model is easy to interpret. A 
+             disadvantage is that these models generally do not perform as well 
+             as some ensemble methods in predicting."), 
+        br(), 
+        h3("Tree Model:"), 
+        span("A tree model will create numerous different 'branches' based on 
+             the values of different explanatory variables. Then, at the end of 
+             each branch, the model will assign a prediction for the response 
+             variable to these observations. In our case we have a continuous 
+             response variable - the tree model will typically use the mean of 
+             all observations in the branch as the prediction. Tree models are 
+             fit using a greedy algorithm, and are generally 'pruned back' in 
+             order to not overfit to the data. Some advantages of using tree 
+             models are that they are very easy to understand, and fitting the 
+             model does not require any statistical assumptions. A disadvantage 
+             is that these models are prone to changes in the data."), 
+        br(), 
+        h3("Random Forest Model:"), 
+        span("Random forest models utilize bootstrap aggregation, in which we 
+             re-sample from the data (with replacement) many times, create tree 
+             models based on these samples, create predictions using these 
+             models, and finally average these predictions as our final result. 
+             Additionally, random forest models will choose a random selection 
+             of explanatory variables for each tree model it fits. An advantage 
+             to using random forest models is that these models are very good 
+             for prediction. A disadvantage is that these models are more 
+             difficult to interpret.")
+      )
+    )
+  ),
   
   # Modeling UI 
   tabPanel("Model Fitting", 
@@ -159,12 +240,14 @@ shinyUI(navbarPage("PGA Tour App",
           br(), 
           h3("Variable Importance - RF Model"), 
           verbatimTextOutput("rfImp"), 
+          br(),
           h3("Test RMSE for Each Model"), 
           dataTableOutput("testrmse")
         )
       )
   ), 
   
+  # Prediction UI 
   tabPanel("Prediction", 
     titlePanel("Select Model & Input Variable Values to Predict Points"), 
     sidebarLayout( 
@@ -203,6 +286,7 @@ shinyUI(navbarPage("PGA Tour App",
     )
   ), 
   
+  # Data UI
   tabPanel("Data", 
     titlePanel("Full Data Set"), 
     sidebarLayout(
