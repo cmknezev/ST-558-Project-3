@@ -10,9 +10,19 @@ The dataset was obtained from [Kaggle](https://www.kaggle.com/datasets/jmpark746
 
 The following packages are required to run the app:   
 
+- shiny   
+- tidyverse    
+- caret    
+- shinyWidgets    
+- Metrics    
+- randomForest    
+- DT     
+
 
 You can install these packages with the following code:   
 
+install.packages(c("shiny", "tidyverse", "caret", "shinyWidgets", 
+                   "Metrics", "randomForest", "DT"))     
 
 ### Code to Run the App 
 
